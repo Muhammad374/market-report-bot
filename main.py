@@ -1,18 +1,44 @@
+import os
+import asyncio
 import requests
+from telegram import Bot
+
+TOKEN = os.environ["BOT_TOKEN"]
+CHANNEL = -1003797303512
+
 
 def get_usdt():
-    url = "https://api.nobitex.ir/market/stats"
-    
-    data = {
-        "srcCurrency": "usdt",
-        "dstCurrency": "rls"
-    }
+    url = "https://api.tetherland.com/currencies"
 
-    r = requests.post(url, json=data).json()
+    r = requests.get(url, timeout=10)
+    data = r.json()
 
-    price = r["stats"]["usdt-rls"]["latest"]
+    usdt = data["data"]["currencies"]["USDT"]["price"]
 
-    return int(price) // 10   # تبدیل ریال به تومان
+    return int(usdt)
 
 
-print(get_usdt())
+async def main():
+    usdt_price = get_usdt()
+
+    message = f"""
+📊 Goldx Market Report
+
+💵 تتر:
+{usdt_price:,} تومان
+
+⏱ بروزرسانی خودکار فعال است
+"""
+
+    bot = Bot(token=TOKEN)
+
+    await bot.send_message(
+        chat_id=CHANNEL,
+        text=message
+    )
+
+    print("MESSAGE SENT")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
