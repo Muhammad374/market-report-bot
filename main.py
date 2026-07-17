@@ -3,7 +3,7 @@ import asyncio
 from telegram import Bot
 
 TOKEN = os.environ["BOT_TOKEN"]
-CHANNEL = os.environ["CHANNEL_ID"]
+CHANNEL = os.environ["-1003797303512"]
 
 message = """
 📊 گزارش تست بازار
