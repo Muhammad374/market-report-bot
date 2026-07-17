@@ -1,29 +1,18 @@
-import os
-import asyncio
-from telegram import Bot
+import requests
 
-TOKEN = os.environ["BOT_TOKEN"]
+def get_usdt():
+    url = "https://api.nobitex.ir/market/stats"
+    
+    data = {
+        "srcCurrency": "usdt",
+        "dstCurrency": "rls"
+    }
 
-CHANNEL = -1003797303512
+    r = requests.post(url, json=data).json()
 
-message = """
-📊 گزارش تست بازار
+    price = r["stats"]["usdt-rls"]["latest"]
 
-🟡 طلا: در حال دریافت...
-₿ بیت‌کوین: در حال دریافت...
+    return int(price) // 10   # تبدیل ریال به تومان
 
-⏱ بروزرسانی خودکار فعال شد
-"""
 
-async def main():
-    bot = Bot(token=TOKEN)
-
-    await bot.send_message(
-        chat_id=CHANNEL,
-        text=message
-    )
-
-    print("MESSAGE SENT")
-
-if __name__ == "__main__":
-    asyncio.run(main())
+print(get_usdt())
