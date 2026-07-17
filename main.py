@@ -1,6 +1,7 @@
 import os
 import asyncio
 import json
+import subprocess
 from telegram import Bot
 
 
@@ -36,74 +37,104 @@ MESSAGE = """
 """
 
 
-def read_message_id():
+FILE = "last_message.json"
+
+
+def read_id():
+
     try:
-        with open("last_message.json", "r") as file:
-            data = json.load(file)
-            return data.get("message_id")
-    except Exception:
+        with open(FILE, "r") as f:
+            return json.load(f)["message_id"]
+
+    except:
         return None
 
 
-def write_message_id(message_id):
-    with open("last_message.json", "w") as file:
+
+def save_id(message_id):
+
+    with open(FILE, "w") as f:
         json.dump(
             {
                 "message_id": message_id
             },
-            file
+            f
         )
+
+
+
+def git_save():
+
+    subprocess.run(
+        ["git", "config", "--global", "user.name", "github-actions"]
+    )
+
+    subprocess.run(
+        ["git", "config", "--global", "user.email", "actions@github.com"]
+    )
+
+    subprocess.run(
+        ["git", "add", FILE]
+    )
+
+    subprocess.run(
+        ["git", "commit", "-m", "save message id"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+
+    subprocess.run(
+        ["git", "push"]
+    )
+
 
 
 async def main():
 
-    bot = Bot(token=TOKEN)
+    bot = Bot(TOKEN)
 
 
-    # پیام قبلی
-    old_message_id = read_message_id()
+    old_id = read_id()
 
-    print("OLD ID:", old_message_id)
+    print("OLD ID:", old_id)
 
 
-    if old_message_id:
+    if old_id:
 
         try:
+
             await bot.delete_message(
                 chat_id=CHANNEL,
-                message_id=old_message_id
+                message_id=old_id
             )
 
-            print("OLD MESSAGE DELETED")
+            print("DELETED")
 
-        except Exception as error:
+        except Exception as e:
 
-            print(
-                "DELETE ERROR:",
-                error
-            )
+            print("DELETE ERROR:", e)
 
 
-    # پیام جدید
-    new_message = await bot.send_message(
+
+    msg = await bot.send_message(
         chat_id=CHANNEL,
         text=MESSAGE
     )
 
 
-    print(
-        "NEW ID:",
-        new_message.message_id
+    print("NEW ID:", msg.message_id)
+
+
+    save_id(
+        msg.message_id
     )
 
 
-    # ذخیره آیدی پیام جدید
-    write_message_id(
-        new_message.message_id
-    )
+    git_save()
 
 
     print("DONE")
+
 
 
 if __name__ == "__main__":
