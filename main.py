@@ -1,28 +1,35 @@
 import os
 import asyncio
 import requests
+from datetime import datetime
 from telegram import Bot
 
 TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL = -1003797303512
 
 
-def safe_get(url):
+def get_json(url):
     try:
         r = requests.get(url, timeout=10)
         return r.json()
-    except:
+    except Exception:
         return None
 
 
+# -------------------------
+# Tether تومان
+# -------------------------
 def get_usdt():
     try:
-        data = safe_get("https://api.tetherland.com/currencies")
+        data = get_json("https://api.tetherland.com/currencies")
         return int(data["data"]["currencies"]["USDT"]["price"])
     except:
         return None
 
 
+# -------------------------
+# BTC / ETH دلار
+# -------------------------
 def get_crypto():
     try:
         url = (
@@ -30,7 +37,7 @@ def get_crypto():
             "?ids=bitcoin,ethereum&vs_currencies=usd"
         )
 
-        data = safe_get(url)
+        data = get_json(url)
 
         return (
             data["bitcoin"]["usd"],
@@ -41,49 +48,84 @@ def get_crypto():
         return None, None
 
 
-def get_global_market():
-    # فعلاً جای اتصال اونس و نفت
-    return None, None
+# -------------------------
+# اونس طلا
+# -------------------------
+def get_gold_ounce():
+    # اینجا API اونس قرار می‌گیرد
+    return None
 
 
-def get_iran_gold():
-    # فعلاً جای اتصال طلای ایران و سکه
-    return None, None
+# -------------------------
+# نفت
+# -------------------------
+def get_oil():
+    # اینجا API نفت قرار می‌گیرد
+    return None
+
+
+# -------------------------
+# طلای ۱۸ میلی گلد
+# -------------------------
+def get_gold18():
+    # اینجا API میلی گلد قرار می‌گیرد
+    return None
+
+
+# -------------------------
+# سکه
+# -------------------------
+def get_coin():
+    # اینجا API سکه قرار می‌گیرد
+    return None
+
 
 
 async def main():
 
     usdt = get_usdt()
     btc, eth = get_crypto()
-    gold, oil = get_global_market()
-    gold18, coin = get_iran_gold()
+
+    ounce = get_gold_ounce()
+    oil = get_oil()
+    gold18 = get_gold18()
+    coin = get_coin()
+
+
+    time = datetime.now().strftime("%H:%M")
 
 
     message = f"""
-📊 Goldx Market Report
+📊 Goldx Market
 
-💵 تتر:
-{f"{usdt:,} تومان" if usdt else "نامشخص"}
+━━━━━━━━━━━━
 
-₿ بیت‌کوین:
-{f"${btc:,}" if btc else "نامشخص"}
+💵 Tether
+{f"{usdt:,} تومان" if usdt else "-"}
 
-Ξ اتریوم:
-{f"${eth:,}" if eth else "نامشخص"}
+₿ Bitcoin
+{f"${btc:,}" if btc else "-"}
 
-🟡 اونس جهانی طلا:
-{f"${gold}" if gold else "نامشخص"}
+Ξ Ethereum
+{f"${eth:,}" if eth else "-"}
 
-🛢 نفت:
-{f"${oil}" if oil else "نامشخص"}
+━━━━━━━━━━━━
 
-🥇 طلای ۱۸ عیار:
-{f"{gold18:,} تومان" if gold18 else "نامشخص"}
+🟡 Gold Ounce
+{f"${ounce}" if ounce else "-"}
 
-🪙 سکه بهار آزادی:
-{f"{coin:,} تومان" if coin else "نامشخص"}
+🛢 Oil
+{f"${oil}" if oil else "-"}
 
-⏱ بروزرسانی هر ۱ ساعت
+🥇 Gold 18K
+{f"{gold18:,} تومان" if gold18 else "-"}
+
+🪙 Bahar Azadi Coin
+{f"{coin:,} تومان" if coin else "-"}
+
+━━━━━━━━━━━━
+
+🕒 {time}
 """
 
 
