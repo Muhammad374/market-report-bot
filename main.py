@@ -15,9 +15,13 @@ message = """
 ⏱ بروزرسانی خودکار فعال شد
 """
 
-bot.send_message(
-    chat_id=CHANNEL,
-    text=message
-)
+try:
+    bot.send_message(
+        chat_id=CHANNEL,
+        text=message
+    )
+    print("MESSAGE SENT")
+except Exception as e:
+    print(e)
 
 print("Message sent successfully")
