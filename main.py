@@ -382,9 +382,9 @@ def update_gold(cache):
 
 
             cache["gold18"] = data["gold18"]
-
-            cache["coin"] = data["coin"]
-
+            
+            cache["coin"] = data["coin"] * 1000
+            
             cache["ounce"] = data["ounce"]
 
             cache["bubble"] = data["bubble"]
@@ -399,45 +399,6 @@ def update_gold(cache):
 
 
     return cache
-
-
-# =========================
-# OIL (BRENT)
-# =========================
-
-def get_oil():
-
-    try:
-
-        url = (
-            "https://api.oilpriceapi.com/v1/prices/latest"
-        )
-
-        headers = {
-            "Authorization": "Token " + OIL_API_KEY,
-            "Content-Type": "application/json"
-        }
-
-        data = request_json(
-            url,
-            headers=headers
-        )
-
-        return float(
-            data["data"]["BRENT"]["price"]
-        )
-
-
-    except Exception as e:
-
-        print(
-            "OIL ERROR:",
-            e
-        )
-
-        return None
-
-
 
 # =========================
 # BUILD MESSAGE
@@ -476,15 +437,11 @@ def build_message(
 {percent(crypto['btc_change'])}
 🔷اتریوم (ETH){money(crypto['eth'])} دلار
 {percent(crypto['eth_change'])}
-
 🟡 اونس طلا (XAU):{round(ounce_usd, 2) if ounce_usd else "-"} دلار
-🛢 نفت (OIL):{money(oil)}
-
 🥇 طلای ۱۸ عیار
 💰 قیمت بازار:{money(cache['gold18'])} تومان
 ⚖️ قیمت واقعی:{money(real)} تومان
 🔥 حباب:{bubble_money(bubble)} تومان
-
 🪙 سکه بهار آزادی
 💰 قیمت:{money(cache['coin'])} تومان
 
