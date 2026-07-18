@@ -1,106 +1,131 @@
 import os
-print("FILE START")
 import json
 import asyncio
 import requests
 from datetime import datetime
 from telegram import Bot
 
-# ==========================
-# تنظیمات
-# ==========================
+
+# =========================
+# SETTINGS
+# =========================
 
 TOKEN = os.environ["BOT_TOKEN"]
-CHANNEL = -1003797303512
+
+CHANNEL = int(
+    os.environ.get(
+        "CHANNEL_ID",
+        "-1003797303512"
+    )
+)
 
 NAVASAN_KEY = os.environ["NAVASAN_KEY"]
+
 
 CACHE_FILE = "cache.json"
 MESSAGE_FILE = "last_message.json"
 
-# ==========================
-# توابع فایل
-# ==========================
 
-def load_json(file_name, default):
+
+# =========================
+# FILE FUNCTIONS
+# =========================
+
+def read_file(name, default):
 
     try:
-        with open(file_name, "r", encoding="utf-8") as f:
+        with open(
+            name,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
             return json.load(f)
 
     except:
+
         return default
 
 
-def save_json(file_name, data):
 
-    with open(file_name, "w", encoding="utf-8") as f:
+def write_file(name, data):
+
+    with open(
+        name,
+        "w",
+        encoding="utf-8"
+    ) as f:
 
         json.dump(
             data,
             f,
             ensure_ascii=False,
-            indent=4
+            indent=2
         )
 
 
-# ==========================
-# کش قیمت طلا
-# ==========================
 
-def load_cache():
+# =========================
+# CACHE
+# =========================
 
-    return load_json(
+def get_cache():
+
+    return read_file(
         CACHE_FILE,
         {
             "gold18": None,
             "coin": None,
             "ounce": None,
             "bubble": None,
-            "last_update": 0
+            "time": 0
         }
     )
 
 
+
 def save_cache(data):
 
-    save_json(
+    write_file(
         CACHE_FILE,
         data
     )
 
 
-# ==========================
-# ذخیره آیدی پیام
-# ==========================
 
-def load_message():
+# =========================
+# MESSAGE ID
+# =========================
 
-    data = load_json(
+def get_message_id():
+
+    data = read_file(
         MESSAGE_FILE,
         {
-            "message_id": None
+            "id": None
         }
     )
 
-    return data["message_id"]
+    return data["id"]
 
 
-def save_message(message_id):
 
-    save_json(
+def save_message_id(message_id):
+
+    write_file(
         MESSAGE_FILE,
         {
-            "message_id": message_id
+            "id": message_id
         }
     )
 
 
-# ==========================
-# درخواست امن
-# ==========================
 
-def get_json(url, headers=None):
+# =========================
+# SAFE REQUEST
+# =========================
+
+def request_json(url, headers=None):
 
     try:
 
@@ -110,27 +135,67 @@ def get_json(url, headers=None):
             timeout=15
         )
 
-        if r.status_code == 200:
-
-            return r.json()
+        return r.json()
 
     except Exception as e:
 
-        print(e)
+        print(
+            "REQUEST ERROR:",
+            e
+        )
 
-    return None
+        return None
 
 
-# ==========================
-# محاسبه قیمت ذاتی طلا
-# ==========================
 
-def real_gold_price(ounce, usdt):
+# =========================
+# NUMBER FORMAT
+# =========================
+
+def money(value):
+
+    try:
+
+        return f"{int(value):,}"
+
+    except:
+
+        return "-"
+
+
+
+def percent(value):
+
+    try:
+
+        if value > 0:
+            return f"🟢 +{value:.2f}%"
+
+        if value < 0:
+            return f"🔴 {value:.2f}%"
+
+        return "⚪ 0%"
+
+    except:
+
+        return ""
+
+
+
+# =========================
+# GOLD FORMULA
+# =========================
+
+def gold_real_price(ounce, usdt):
 
     try:
 
         return int(
-            (ounce * usdt) / 8.999 / 4.6
+            (ounce * usdt)
+            /
+            8.999
+            /
+            4.6
         )
 
     except:
@@ -138,48 +203,29 @@ def real_gold_price(ounce, usdt):
         return None
 
 
-# ==========================
-# درصد تغییر
-# ==========================
 
-def change_icon(value):
+# =========================
+# TIME CHECK
+# =========================
 
-    if value is None:
-
-        return ""
-
-    if value > 0:
-
-        return f"🟢 ▲ {value:.2f}%"
-
-    elif value < 0:
-
-        return f"🔴 ▼ {abs(value):.2f}%"
-
-    return "⚪️"
-
-
-# ==========================
-# آیا باید نوسان آپدیت شود؟
-# هر 7 ساعت
-# ==========================
-
-def need_update(cache):
+def gold_update_needed(cache):
 
     now = datetime.now().timestamp()
 
     return (
-        now - cache["last_update"]
-    ) > (7 * 3600)
-    # ==========================
-# تتر
-# ==========================
+        now - cache["time"]
+        >
+        7 * 3600
+    )
+# =========================
+# USDT
+# =========================
 
 def get_usdt():
 
     try:
 
-        data = get_json(
+        data = request_json(
             "https://api.tetherland.com/currencies"
         )
 
@@ -189,15 +235,18 @@ def get_usdt():
 
     except Exception as e:
 
-        print("USDT ERROR:", e)
+        print(
+            "USDT ERROR:",
+            e
+        )
 
         return None
 
 
 
-# ==========================
-# بیت کوین و اتریوم
-# ==========================
+# =========================
+# BTC / ETH
+# =========================
 
 def get_crypto():
 
@@ -211,18 +260,20 @@ def get_crypto():
         )
 
 
-        data = get_json(url)
+        data = request_json(url)
 
 
         return {
 
-            "btc": data["bitcoin"]["usd"],
+            "btc":
+                data["bitcoin"]["usd"],
 
             "btc_change":
                 data["bitcoin"]["usd_24h_change"],
 
 
-            "eth": data["ethereum"]["usd"],
+            "eth":
+                data["ethereum"]["usd"],
 
             "eth_change":
                 data["ethereum"]["usd_24h_change"]
@@ -232,7 +283,11 @@ def get_crypto():
 
     except Exception as e:
 
-        print("CRYPTO ERROR:", e)
+        print(
+            "CRYPTO ERROR:",
+            e
+        )
+
 
         return {
 
@@ -245,78 +300,9 @@ def get_crypto():
 
 
 
-# ==========================
-# اونس طلا
-# ==========================
-
-def get_ounce():
-
-    try:
-
-        url = (
-            "https://www.goldapi.io/api/XAU/USD"
-        )
-
-
-        headers = {
-
-            "x-access-token":
-                os.environ["GOLD_API_KEY"],
-
-            "Content-Type":
-                "application/json"
-
-        }
-
-
-        data = get_json(
-            url,
-            headers
-        )
-
-
-        return data["price"]
-
-
-    except Exception as e:
-
-        print("GOLD ERROR:", e)
-
-        return None
-
-
-
-
-# ==========================
-# نفت
-# ==========================
-
-def get_oil():
-
-    try:
-
-        # فعلاً منبع عمومی نفت
-        # در صورت تغییر API فقط این قسمت عوض می‌شود
-
-        url = (
-            "https://api.marketstack.com/v1/eod/latest"
-        )
-
-
-        return None
-
-
-    except:
-
-        return None
-
-
-
-
-# ==========================
-# نوسان
-# طلای 18 و سکه
-# ==========================
+# =========================
+# NAVASAN
+# =========================
 
 def get_navasan():
 
@@ -329,7 +315,7 @@ def get_navasan():
         )
 
 
-        data = get_json(url)
+        data = request_json(url)
 
 
         return {
@@ -346,32 +332,31 @@ def get_navasan():
                 int(data["xau"]["value"]),
 
 
-            "bubble_gold":
-                int(data["bub_18ayar"]["value"]),
-
-
-            "bubble_coin":
-                int(data["bub_bahar"]["value"])
+            "bubble":
+                int(data["bub_18ayar"]["value"])
 
         }
 
 
     except Exception as e:
 
-        print("NAVASAN ERROR:", e)
+        print(
+            "NAVASAN ERROR:",
+            e
+        )
 
         return None
 
 
 
-# ==========================
-# آپدیت کش طلا
-# ==========================
+# =========================
+# UPDATE GOLD CACHE
+# =========================
 
-def update_gold_cache(cache):
+def update_gold(cache):
 
 
-    if need_update(cache):
+    if gold_update_needed(cache):
 
 
         data = get_navasan()
@@ -386,9 +371,10 @@ def update_gold_cache(cache):
 
             cache["ounce"] = data["ounce"]
 
-            cache["bubble"] = data["bubble_gold"]
+            cache["bubble"] = data["bubble"]
 
-            cache["last_update"] = (
+
+            cache["time"] = (
                 datetime.now().timestamp()
             )
 
@@ -397,20 +383,31 @@ def update_gold_cache(cache):
 
 
     return cache
-    # ==========================
-# ساخت پیام
-# ==========================
+
+
+
+# =========================
+# OIL (TEMP)
+# =========================
+
+def get_oil():
+
+    # بعداً API نفت را اینجا وصل می‌کنیم
+
+    return None
+    # =========================
+# BUILD MESSAGE
+# =========================
 
 def build_message(
     usdt,
     crypto,
     cache,
-    ounce,
     oil
 ):
 
 
-    real_price = real_gold_price(
+    real = gold_real_price(
         cache["ounce"],
         usdt
     )
@@ -418,15 +415,13 @@ def build_message(
 
     bubble = None
 
-
-    if cache["gold18"] and real_price:
+    if cache["gold18"] and real:
 
         bubble = (
             cache["gold18"]
             -
-            real_price
+            real
         )
-
 
 
     text = f"""
@@ -435,36 +430,40 @@ def build_message(
 
 💵 دلار (USDT)
 
-{f"{usdt:,} تومان" if usdt else "-"}
+{money(usdt)} تومان
 
 
-┌────────────────────┐
+━━━━━━━━━━━━
 
 
 ₿ بیت‌کوین (BTC)
 
-{f"{crypto['btc']:,} دلار {change_icon(crypto['btc_change'])}" if crypto['btc'] else "-"}
+{money(crypto['btc'])} دلار
+
+{percent(crypto['btc_change'])}
 
 
 Ξ اتریوم (ETH)
 
-{f"{crypto['eth']:,} دلار {change_icon(crypto['eth_change'])}" if crypto['eth'] else "-"}
+{money(crypto['eth'])} دلار
+
+{percent(crypto['eth_change'])}
 
 
-━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━
 
 
 🟡 اونس طلا (XAU)
 
-{f"{cache['ounce']:,} دلار" if cache['ounce'] else "-"}
+{money(cache['ounce'])} دلار
 
 
-🛢 نفت (WTI)
+🛢 نفت (OIL)
 
-{oil if oil else "-"}
+{money(oil)}
 
 
-━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━
 
 
 🥇 طلای ۱۸ عیار
@@ -472,20 +471,20 @@ def build_message(
 
 💰 قیمت بازار:
 
-{f"{cache['gold18']:,} تومان" if cache['gold18'] else "-"}
+{money(cache['gold18'])} تومان
 
 
-⚖️ قیمت ذاتی:
+⚖️ قیمت واقعی:
 
-{f"{real_price:,} تومان" if real_price else "-"}
+{money(real)} تومان
 
 
 🔥 حباب:
 
-{f"{bubble:+,} تومان" if bubble else "-"}
+{money(bubble)} تومان
 
 
-━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━
 
 
 🪙 سکه بهار آزادی
@@ -493,18 +492,18 @@ def build_message(
 
 💰 قیمت:
 
-{f"{cache['coin']:,} تومان" if cache['coin'] else "-"}
+{money(cache['coin'])} تومان
 
 
 🔥 حباب سکه:
 
-{f"{cache['bubble']:,} تومان" if cache['bubble'] else "-"}
+{money(cache['bubble'])} تومان
 
 
-└────────────────────┘
+━━━━━━━━━━━━
 
 
-📡 Goldx Live Market
+📡 Goldx Live
 """
 
 
@@ -512,12 +511,11 @@ def build_message(
 
 
 
+# =========================
+# SEND TELEGRAM
+# =========================
 
-# ==========================
-# ارسال تلگرام
-# ==========================
-
-async def send_report(message):
+async def send_message(text):
 
 
     bot = Bot(
@@ -525,17 +523,21 @@ async def send_report(message):
     )
 
 
-    old_id = load_message()
+    old = get_message_id()
 
 
-    if old_id:
-
+    if old:
 
         try:
 
             await bot.delete_message(
                 chat_id=CHANNEL,
-                message_id=old_id
+                message_id=old
+            )
+
+
+            print(
+                "OLD MESSAGE DELETED"
             )
 
 
@@ -547,17 +549,16 @@ async def send_report(message):
             )
 
 
-
     new = await bot.send_message(
 
         chat_id=CHANNEL,
 
-        text=message
+        text=text
 
     )
 
 
-    save_message(
+    save_message_id(
         new.message_id
     )
 
@@ -570,4 +571,74 @@ async def send_report(message):
 
 
 
-#
+# =========================
+# MAIN
+# =========================
+
+async def main():
+
+    print(
+        "START"
+    )
+
+
+    cache = get_cache()
+
+
+    usdt = get_usdt()
+
+    print(
+        "USDT:",
+        usdt
+    )
+
+
+    crypto = get_crypto()
+
+    print(
+        "CRYPTO OK"
+    )
+
+
+    cache = update_gold(
+        cache
+    )
+
+
+    print(
+        "GOLD OK"
+    )
+
+
+    message = build_message(
+
+        usdt,
+
+        crypto,
+
+        cache,
+
+        get_oil()
+
+    )
+
+
+    print(
+        "MESSAGE READY"
+    )
+
+
+    await send_message(
+        message
+    )
+
+
+    print(
+        "DONE"
+    )
+
+
+
+if __name__ == "__main__":
+
+    asyncio.run(main())
