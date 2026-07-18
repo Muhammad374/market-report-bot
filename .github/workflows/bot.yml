@@ -39,6 +39,7 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           NAVASAN_KEY: ${{ secrets.NAVASAN_KEY }}
+          OIL_API_KEY: ${{ secrets.OIL_API_KEY }}
 
         run: |
           python main.py
