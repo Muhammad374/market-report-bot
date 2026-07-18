@@ -439,12 +439,11 @@ def build_message(
 🔷اتریوم (ETH){money(crypto['eth'])} دلار
 {percent(crypto['eth_change'])}
 🟡 اونس طلا (XAU):{round(ounce_usd, 2) if ounce_usd else "-"} دلار
-🥇 طلای ۱۸ عیار
-💰 قیمت بازار:{money(cache['gold18'])} تومان
+
+🥇 طلای ۱۸ عیار:{money(cache['gold18'])} تومان
 ⚖️ قیمت واقعی:{money(real)} تومان
 🔥 حباب:{bubble_money(bubble)} تومان
-🪙 سکه بهار آزادی
-💰 قیمت:{money(cache['coin'])} تومان
+🪙 سکه بهار آزادی:{money(cache['coin'] * 1000)} تومان
 
 📡 Goldx Live
 """
