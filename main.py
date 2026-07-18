@@ -1,4 +1,5 @@
 import os
+print("FILE START")
 import json
 import asyncio
 import requests
