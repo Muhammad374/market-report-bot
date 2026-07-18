@@ -393,16 +393,21 @@ def get_oil():
     try:
 
         url = (
-            "https://api.twelvedata.com/price"
-            "?symbol=BRENT"
-            "&apikey="
-            + TWELVE_API_KEY
+            "https://api.oilpriceapi.com/v1/prices/latest"
         )
 
-        data = request_json(url)
+        headers = {
+            "Authorization": "Token " + OIL_API_KEY,
+            "Content-Type": "application/json"
+        }
+
+        data = request_json(
+            url,
+            headers=headers
+        )
 
         return float(
-            data["price"]
+            data["data"]["BRENT"]["price"]
         )
 
 
@@ -414,6 +419,7 @@ def get_oil():
         )
 
         return None
+
 
 
 # =========================
