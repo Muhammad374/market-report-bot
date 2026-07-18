@@ -304,7 +304,7 @@ def get_crypto():
 # NAVASAN
 # =========================
 
-def get_navasan():
+def gdef get_navasan():
 
     try:
 
@@ -316,6 +316,8 @@ def get_navasan():
 
 
         data = request_json(url)
+
+        print(data)
 
 
         return {
