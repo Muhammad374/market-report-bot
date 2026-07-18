@@ -304,7 +304,7 @@ def get_crypto():
 # NAVASAN
 # =========================
 
-def gdef get_navasan():
+def get_navasan():
 
     try:
 
