@@ -161,6 +161,20 @@ def money(value):
     except:
 
         return "-"
+        def bubble_money(value):
+
+    try:
+
+        value = int(value)
+
+        if value > 0:
+            return f"+{value:,}"
+
+        return f"{value:,}"
+
+    except:
+
+        return "-"
 
 
 
@@ -324,7 +338,7 @@ def get_navasan():
 
 
             "coin":
-                int(data["bahar"]["value"]),
+                int(data["bahar"]["value"]) * 1000,
 
 
             "ounce":
@@ -435,9 +449,11 @@ def build_message(
 
 
     real = gold_real_price(
-        cache["ounce"],
-        usdt
-    )
+    cache["ounce"],
+    usdt
+)
+
+ounce_usd = cache["ounce"] / usdt if cache["ounce"] and usdt else None
 
 
     bubble = None
@@ -455,33 +471,23 @@ def build_message(
 📊 Goldx Market
 
 💵 دلار (USDT):{money(usdt)} تومان
-.....
-₿ بیت‌کوین (BTC):
-{money(crypto['btc'])} دلار
+
+₿ بیت‌کوین (BTC):{money(crypto['btc'])} دلار
 {percent(crypto['btc_change'])}
- اتریوم (ETH)
-{money(crypto['eth'])} دلار
+🔷اتریوم (ETH){money(crypto['eth'])} دلار
 {percent(crypto['eth_change'])}
-.....
-🟡 اونس طلا (XAU)
-{money(cache['ounce'])} دلار
-🛢 نفت (OIL)
-{money(oil)}
-.....
+
+🟡 اونس طلا (XAU):{round(ounce_usd, 2) if ounce_usd else "-"} دلار
+🛢 نفت (OIL):{money(oil)}
+
 🥇 طلای ۱۸ عیار
-💰 قیمت بازار:
-{money(cache['gold18'])} تومان
-⚖️ قیمت واقعی:
-{money(real)} تومان
-🔥 حباب:
-{money(bubble)} تومان
-.....
+💰 قیمت بازار:{money(cache['gold18'])} تومان
+⚖️ قیمت واقعی:{money(real)} تومان
+🔥 حباب:{bubble_money(bubble)} تومان
+
 🪙 سکه بهار آزادی
-💰 قیمت:
-{money(cache['coin'])} تومان
-🔥 حباب سکه:
-{money(cache['bubble'])} تومان
-.....
+💰 قیمت:{money(cache['coin'])} تومان
+
 📡 Goldx Live
 """
 
