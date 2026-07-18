@@ -450,19 +450,16 @@ def build_message(
     oil
 ):
 
-
     real = gold_real_price(
-    cache["ounce"],
-    usdt
-)
+        cache["ounce"],
+        usdt
+    )
 
-ounce_usd = cache["ounce"] / usdt if cache["ounce"] and usdt else None
+    ounce_usd = cache["ounce"] / usdt if cache["ounce"] and usdt else None
 
-
-bubble = None
+    bubble = None
 
     if cache["gold18"] and real:
-
         bubble = (
             cache["gold18"]
             -
