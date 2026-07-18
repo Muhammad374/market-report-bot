@@ -330,6 +330,7 @@ def get_navasan():
 
 
         data = request_json(url)
+        print("BAHAR RAW =", data["bahar"]["value"])
 
         print(data)
 
@@ -384,6 +385,7 @@ def update_gold(cache):
             cache["gold18"] = data["gold18"]
             
             cache["coin"] = data["coin"] * 1000
+            print("CACHE COIN =", cache["coin"])
             
             cache["ounce"] = data["ounce"]
 
