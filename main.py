@@ -163,7 +163,9 @@ def money(value):
     except:
 
         return "-"
-        def bubble_money(value):
+
+
+def bubble_money(value):
 
     try:
 
@@ -179,10 +181,9 @@ def money(value):
         return "-"
 
 
-
 def percent(value):
 
-        return ""
+    return ""
 
 
 
