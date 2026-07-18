@@ -21,6 +21,8 @@ CHANNEL = int(
 
 NAVASAN_KEY = os.environ["NAVASAN_KEY"]
 
+OIL_API_KEY = os.environ["OIL_API_KEY"]
+
 
 CACHE_FILE = "cache.json"
 MESSAGE_FILE = "last_message.json"
