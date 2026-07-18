@@ -526,12 +526,15 @@ async def send_message(text):
 
 
     old = get_message_id()
+    
+    print("OLD ID:", old)
 
 
     if old:
 
         try:
-
+            print("TRY DELETE:", old)
+            
             await bot.delete_message(
                 chat_id=CHANNEL,
                 message_id=old
