@@ -429,82 +429,35 @@ def build_message(
     text = f"""
 📊 Goldx Market
 
-
 💵 دلار (USDT)
-
 {money(usdt)} تومان
-
-
 ━━━━━━━━━━━━
-
-
 ₿ بیت‌کوین (BTC)
-
 {money(crypto['btc'])} دلار
-
 {percent(crypto['btc_change'])}
-
-
-Ξ اتریوم (ETH)
-
+ اتریوم (ETH)
 {money(crypto['eth'])} دلار
-
 {percent(crypto['eth_change'])}
-
-
 ━━━━━━━━━━━━
-
-
 🟡 اونس طلا (XAU)
-
 {money(cache['ounce'])} دلار
-
-
 🛢 نفت (OIL)
-
 {money(oil)}
-
-
 ━━━━━━━━━━━━
-
-
 🥇 طلای ۱۸ عیار
-
-
 💰 قیمت بازار:
-
 {money(cache['gold18'])} تومان
-
-
 ⚖️ قیمت واقعی:
-
 {money(real)} تومان
-
-
 🔥 حباب:
-
 {money(bubble)} تومان
-
-
 ━━━━━━━━━━━━
-
-
 🪙 سکه بهار آزادی
-
-
 💰 قیمت:
-
 {money(cache['coin'])} تومان
-
-
 🔥 حباب سکه:
-
 {money(cache['bubble'])} تومان
-
-
 ━━━━━━━━━━━━
-
-
 📡 Goldx Live
 """
 
