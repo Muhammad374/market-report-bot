@@ -166,18 +166,6 @@ def money(value):
 
 def percent(value):
 
-    try:
-
-        if value > 0:
-            return f"🟢 +{value:.2f}%"
-
-        if value < 0:
-            return f"🔴 {value:.2f}%"
-
-        return "⚪ 0%"
-
-    except:
-
         return ""
 
 
@@ -188,28 +176,28 @@ def percent(value):
 
 def gold_real_price(ounce, usdt):
 
-    print("DEBUG OUNCE:", ounce)
-    print("DEBUG USDT:", usdt)
-
     try:
 
-        result = int(
-            (ounce * usdt)
-            /
-            8.999
-            /
-            4.6
-        )
+        # اونس ریالی → اونس دلاری
+        ounce_usd = ounce / usdt
 
-        print("DEBUG REAL:", result)
+        # هر گرم طلای 24 عیار به تومان
+        gram24 = (ounce_usd / 31.1035) * usdt
 
-        return result
+        # تبدیل 24 عیار به 18 عیار
+        gram18 = gram24 * 18 / 24
+
+        return int(gram18)
 
     except Exception as e:
 
-        print("GOLD FORMULA ERROR:", e)
+        print(
+            "GOLD FORMULA ERROR:",
+            e
+        )
 
         return None
+
 
 
 
@@ -405,20 +393,17 @@ def get_oil():
     try:
 
         url = (
-            "https://query1.finance.yahoo.com/v8/finance/chart/"
-            "BZ=F?range=1d&interval=1d"
+            "https://api.twelvedata.com/price"
+            "?symbol=BRENT"
+            "&apikey="
+            + TWELVE_API_KEY
         )
 
         data = request_json(url)
 
-        price = (
-            data["chart"]
-            ["result"][0]
-            ["meta"]
-            ["regularMarketPrice"]
+        return float(
+            data["price"]
         )
-
-        return round(price, 2)
 
 
     except Exception as e:
@@ -429,6 +414,7 @@ def get_oil():
         )
 
         return None
+
 
 # =========================
 # BUILD MESSAGE
@@ -462,21 +448,20 @@ def build_message(
     text = f"""
 📊 Goldx Market
 
-💵 دلار (USDT)
-{money(usdt)} تومان
-━━━━━━━━━━━━
-₿ بیت‌کوین (BTC)
+💵 دلار (USDT):{money(usdt)} تومان
+.....
+₿ بیت‌کوین (BTC):
 {money(crypto['btc'])} دلار
 {percent(crypto['btc_change'])}
  اتریوم (ETH)
 {money(crypto['eth'])} دلار
 {percent(crypto['eth_change'])}
-━━━━━━━━━━━━
+.....
 🟡 اونس طلا (XAU)
 {money(cache['ounce'])} دلار
 🛢 نفت (OIL)
 {money(oil)}
-━━━━━━━━━━━━
+.....
 🥇 طلای ۱۸ عیار
 💰 قیمت بازار:
 {money(cache['gold18'])} تومان
@@ -484,13 +469,13 @@ def build_message(
 {money(real)} تومان
 🔥 حباب:
 {money(bubble)} تومان
-━━━━━━━━━━━━
+.....
 🪙 سکه بهار آزادی
 💰 قیمت:
 {money(cache['coin'])} تومان
 🔥 حباب سکه:
 {money(cache['bubble'])} تومان
-━━━━━━━━━━━━
+.....
 📡 Goldx Live
 """
 
