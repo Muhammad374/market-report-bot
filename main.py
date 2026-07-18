@@ -408,7 +408,6 @@ def build_message(
     usdt,
     crypto,
     cache,
-    oil
 ):
 
     real = gold_real_price(
