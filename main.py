@@ -188,9 +188,12 @@ def percent(value):
 
 def gold_real_price(ounce, usdt):
 
+    print("DEBUG OUNCE:", ounce)
+    print("DEBUG USDT:", usdt)
+
     try:
 
-        return int(
+        result = int(
             (ounce * usdt)
             /
             8.999
@@ -198,7 +201,13 @@ def gold_real_price(ounce, usdt):
             4.6
         )
 
-    except:
+        print("DEBUG REAL:", result)
+
+        return result
+
+    except Exception as e:
+
+        print("GOLD FORMULA ERROR:", e)
 
         return None
 
@@ -387,17 +396,41 @@ def update_gold(cache):
     return cache
 
 
-
 # =========================
-# OIL (TEMP)
+# OIL (BRENT)
 # =========================
 
 def get_oil():
 
-    # بعداً API نفت را اینجا وصل می‌کنیم
+    try:
 
-    return None
-    # =========================
+        url = (
+            "https://query1.finance.yahoo.com/v8/finance/chart/"
+            "BZ=F?range=1d&interval=1d"
+        )
+
+        data = request_json(url)
+
+        price = (
+            data["chart"]
+            ["result"][0]
+            ["meta"]
+            ["regularMarketPrice"]
+        )
+
+        return round(price, 2)
+
+
+    except Exception as e:
+
+        print(
+            "OIL ERROR:",
+            e
+        )
+
+        return None
+
+# =========================
 # BUILD MESSAGE
 # =========================
 
