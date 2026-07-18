@@ -562,8 +562,6 @@ async def main():
 
         cache,
 
-        get_oil()
-
     )
 
 
