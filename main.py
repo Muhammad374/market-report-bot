@@ -459,7 +459,7 @@ def build_message(
 ounce_usd = cache["ounce"] / usdt if cache["ounce"] and usdt else None
 
 
-    bubble = None
+bubble = None
 
     if cache["gold18"] and real:
 
