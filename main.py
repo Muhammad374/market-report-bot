@@ -342,7 +342,7 @@ def get_navasan():
 
 
             "coin":
-                int(data["bahar"]["value"]) * 1000,
+                int(data["bahar"]["value"]),
 
 
             "ounce":
@@ -384,7 +384,7 @@ def update_gold(cache):
 
             cache["gold18"] = data["gold18"]
             
-            cache["coin"] = data["coin"] * 1000
+            cache["coin"] = data["coin"]
             print("CACHE COIN =", cache["coin"])
             
             cache["ounce"] = data["ounce"]
